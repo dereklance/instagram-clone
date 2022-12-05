@@ -5,14 +5,18 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db/client";
+import { userRouter } from "../../../server/trpc/router/user";
 
 export const authOptions: NextAuthOptions = {
-  // Include user.id on session
   callbacks: {
-    session({ session, user }) {
+    async session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
+
+        const profile = await userRouter.createCaller({ session, prisma }).me();
+        session.profile = profile ?? undefined;
       }
+
       return session;
     },
   },

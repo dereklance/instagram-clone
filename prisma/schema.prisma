@@ -45,14 +45,20 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
-  username      String    @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  posts         Post[]
-  comments      Comment[]
-  avatarUrl     String?
+  profile       UserProfile?
+}
+
+model UserProfile {
+  userId    String    @id
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username  String    @unique
+  posts     Post[]
+  comments  Comment[]
+  avatarUrl String?
 }
 
 model VerificationToken {
@@ -64,21 +70,21 @@ model VerificationToken {
 }
 
 model Post {
-  id       String @id @default(cuid())
-  authorId String
-  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  images   Image[]
-  comments Comment[]
-  caption  String
+  id             String      @id @default(cuid())
+  authorUsername String @default("dereklance")
+  author         UserProfile @relation(fields: [authorUsername], references: [username], onDelete: Cascade)
+  images         Image[]
+  comments       Comment[]
+  caption        String
 }
 
 model Comment {
-  id       String @id @default(cuid())
-  postId   String
-  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  authorId String
-  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  text     String
+  id             String @id @default(cuid())
+  postId         String
+  post           Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorUsername String @default("dereklance")
+  author         UserProfile   @relation(fields: [authorUsername], references: [username], onDelete: Cascade)
+  text           String
 }
 
 model Image {
