@@ -32,6 +32,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
+      <div id="modal-root" />
       <LayoutWrapper>
         <Component {...pageProps} />
       </LayoutWrapper>
