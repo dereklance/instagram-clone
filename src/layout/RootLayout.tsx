@@ -2,6 +2,7 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import type { HTMLAttributes, PropsWithChildren, ReactElement } from "react";
+import { useState } from "react";
 import {
   AiFillCompass,
   AiFillHeart,
@@ -15,6 +16,7 @@ import {
   AiOutlinePlusCircle,
   AiOutlineSearch,
 } from "react-icons/ai";
+import { CreatePostModal } from "../features/create/CreatePostModal";
 
 const NavButton = ({
   FocusIcon,
@@ -44,6 +46,8 @@ const NavButton = ({
 export const RootLayout = ({ children }: PropsWithChildren) => {
   const { status: sessionStatus, data: session } = useSession();
   const router = useRouter();
+
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   return (
     <div>
@@ -102,9 +106,15 @@ export const RootLayout = ({ children }: PropsWithChildren) => {
                 FocusIcon={AiFillPlusCircle}
                 BlurIcon={AiOutlinePlusCircle}
                 focus={false}
+                onClick={() => setCreateModalOpen(true)}
               >
                 Create
               </NavButton>
+              <CreatePostModal
+                open={createModalOpen}
+                onClose={() => setCreateModalOpen(false)}
+              />
+
               <NavButton
                 FocusIcon={() => (
                   <div className="relative aspect-square w-[30px]">

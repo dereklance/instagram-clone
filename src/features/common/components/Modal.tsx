@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import type { ButtonHTMLAttributes, PropsWithChildren } from "react";
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { IoClose as CloseIcon } from "react-icons/io5";
@@ -6,7 +6,7 @@ import { IoClose as CloseIcon } from "react-icons/io5";
 const ModalBackdrop = ({
   children,
   onClose,
-}: PropsWithChildren<{ onClose: () => void }>) => {
+}: PropsWithChildren<{ onClose?: () => void }>) => {
   const [shouldClose, setShouldClose] = useState(false);
 
   const handleMouseDown = () => {
@@ -15,7 +15,7 @@ const ModalBackdrop = ({
 
   const handleMouseUp = () => {
     if (shouldClose) {
-      onClose();
+      onClose?.();
     }
     setShouldClose(false);
   };
@@ -26,16 +26,22 @@ const ModalBackdrop = ({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
-      <button className="absolute top-4 right-4 text-white">
-        <CloseIcon size={28} />
-      </button>
+      {onClose ? (
+        <button className="absolute top-4 right-4 text-white">
+          <CloseIcon size={28} />
+        </button>
+      ) : null}
+
       {children}
     </div>
   );
 };
 
-const ModalBody = ({ children }: PropsWithChildren) => {
-  return <div className="rounded-xl bg-white">{children}</div>;
+const ModalBody = ({
+  children,
+  className,
+}: PropsWithChildren<{ className?: string }>) => {
+  return <div className={`rounded-xl bg-white ${className}`}>{children}</div>;
 };
 
 const ModalBuffer = ({ children }: PropsWithChildren) => {
@@ -50,21 +56,46 @@ const ModalBuffer = ({ children }: PropsWithChildren) => {
   );
 };
 
+const ModalTitle = ({ children }: PropsWithChildren) => {
+  return (
+    <div className="flex justify-center border-b border-b-black/20 p-2 font-semibold">
+      {children}
+    </div>
+  );
+};
+
+const ModalButton = (props: ButtonHTMLAttributes<HTMLButtonElement>) => {
+  return (
+    <button
+      {...props}
+      className={`w-full border-t border-t-black/20 py-4 px-8 text-sm ${props.className}`}
+    />
+  );
+};
+
 export const Modal = ({
   children,
   open,
   onClose,
-}: PropsWithChildren<{ open: boolean; onClose: () => void }>) => {
+  className,
+}: PropsWithChildren<{
+  open: boolean;
+  onClose?: () => void;
+  className?: string;
+}>) => {
   const modal = useRef<Element | null>(document.getElementById("modal-root"));
 
   return modal.current && open
     ? createPortal(
         <ModalBackdrop onClose={onClose}>
           <ModalBuffer>
-            <ModalBody>{children}</ModalBody>
+            <ModalBody className={className}>{children}</ModalBody>
           </ModalBuffer>
         </ModalBackdrop>,
         modal.current
       )
     : null;
 };
+
+Modal.Title = ModalTitle;
+Modal.Button = ModalButton;
